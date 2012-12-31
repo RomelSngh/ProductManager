@@ -47,7 +47,7 @@ namespace ProductManagement.Data
 
             builder.Entity<Category>().HasData(
                 new Category { CategoryCode= "ABC123" ,CategoryId=1, IsActive=true , Name = "TestCategory"  }
-                );
+                );//
         }
 
         public string GetNextSequenceValue()
