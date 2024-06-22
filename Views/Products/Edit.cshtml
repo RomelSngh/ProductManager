@@ -1,16 +1,15 @@
-﻿@model ProductManagement.Models.Product
+﻿@model ProductManagement.Models.EditProductViewModel
 
 @{
     ViewData["Title"] = "Edit";
 }
 
-<h1>Edit</h1>
-
-<h4>Product</h4>
-<hr />
-<div class="row">
-    <div class="col-md-4">
-        <form asp-action="Edit">
+<div class="card">
+    <div class="card-header">
+        <h3 class="text-uppercase">Edit Product</h3>
+    </div>
+    <div class="card-body">
+        <form asp-action="Edit"  enctype="multipart/form-data" method="post">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
             <input type="hidden" asp-for="ProductId" />
             <div class="form-group">
@@ -44,21 +43,37 @@
                 <span asp-validation-for="Price" class="text-danger"></span>
             </div>
             <div class="form-group">
-                <label asp-for="Image" class="control-label"></label>
-                <input asp-for="Image" class="form-control" />
+                <label asp-for="Image">Upload Image</label>
+                <input type="file" name="Image" id="Image" class="form-control custom-file-input" />
                 <span asp-validation-for="Image" class="text-danger"></span>
+                <input type="hidden" name="ImageName" value="@Model.ImageName"> 
+                <img src="@FileLocation.RetriveFileFromFolder@Model.ImageName" id="imagePreview" name="Image" class="img-thumbnail" height="80" width="80" asp-append-version="true" />
             </div>
+@*             <div class="form-group">
+                <input type="hidden" name="ImageName" />
+            </div> *@
             <div class="form-group">
-                <input type="submit" value="Save" class="btn btn-primary" />
+                <button type="submit" class="btn btn-sm btn-info rounded-0"><i class="fa fa-pencil-alt"></i> Update</button>
+                <a asp-action="Index" class="btn btn-sm btn-primary rounded-0"><i class="fas fa-fast-backward"></i> Back to List</a>
             </div>
         </form>
     </div>
 </div>
 
-<div>
-    <a asp-action="Index">Back to List</a>
-</div>
 
 @section Scripts {
+    <script>
+        // Add the following code if you want the name of the file appear on select , Also changes image preview 
+        $(".custom-file-input").on("change", function (e) {
+            var fileName = $(this).val().split("\\").pop();
+            $(this).siblings(".custom-file-label").addClass("selected").html(fileName);
+
+            var reader = new FileReader();
+            reader.onload = function (event) {
+                $('#imagePreview').attr('src', event.target.result);
+            };
+            reader.readAsDataURL(e.target.files[0]);
+        });
+    </script>
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
 }

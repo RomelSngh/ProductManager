@@ -1,6 +1,8 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using ProductManagement.Contracts;
 using ProductManagement.Data;
+using ProductManagement.Helpers;
 
 namespace ProductManagement
 {
@@ -15,11 +17,13 @@ namespace ProductManagement
             builder.Services.AddDbContext<ProductDbContext>(options =>
                 options.UseSqlServer(connectionString));
             builder.Services.AddDatabaseDeveloperPageExceptionFilter();
+            builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 
             builder.Services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = true)
                 .AddEntityFrameworkStores<ProductDbContext>();
             builder.Services.AddControllersWithViews();
-
+            //builder.Services.AddScoped<ILocationApiService, LocationApiService>();
+            builder.Services.AddScoped<IFileHelper, FileHelper>();
             var app = builder.Build();
 
             // Configure the HTTP request pipeline.

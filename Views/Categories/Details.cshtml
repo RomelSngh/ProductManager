@@ -4,11 +4,12 @@
     ViewData["Title"] = "Details";
 }
 
-<h1>Details</h1>
 
-<div>
-    <h4>Category</h4>
-    <hr />
+<div class="card">
+    <div class="card-header">
+        <h3 class="text-uppercase">Category Details</h3>
+    </div>
+    <div class="card-body">
     <dl class="row">
         <dt class = "col-sm-2">
             @Html.DisplayNameFor(model => model.Name)
@@ -29,8 +30,12 @@
             @Html.DisplayFor(model => model.IsActive)
         </dd>
     </dl>
+        <div>
+            <a asp-action="Edit" asp-route-id="@Model.CategoryId" class="btn btn-sm btn-info rounded-0"><i class="fa fa-pencil-alt"></i> Edit</a>
+            <a asp-action="Delete" asp-route-id="@Model.CategoryId" class="btn btn-sm btn-danger rounded-0"><i class="fa fa-trash-alt"></i> Delete</a>
+            <a asp-action="Index" class="btn btn-sm btn-primary rounded-0"><i class="fas fa-fast-backward"></i> Back to List</a>
+        </div>
 </div>
-<div>
-    <a asp-action="Edit" asp-route-id="@Model?.CategoryId">Edit</a> |
-    <a asp-action="Index">Back to List</a>
 </div>
+
+

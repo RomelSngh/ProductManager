@@ -58,6 +58,8 @@ namespace ProductManagement.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("CategoryId,Name,CategoryCode,IsActive")] Category category)
         {
+            ModelState.Remove(nameof(category.Products));
+
             if (ModelState.IsValid)
             {
                 _context.Add(category);
@@ -90,6 +92,8 @@ namespace ProductManagement.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, [Bind("CategoryId,Name,CategoryCode,IsActive")] Category category)
         {
+            ModelState.Remove(nameof(category.Products));
+
             if (id != category.CategoryId)
             {
                 return NotFound();
