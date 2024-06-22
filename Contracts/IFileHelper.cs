@@ -1,6 +1,6 @@
 ﻿namespace ProductManagement.Contracts
 {
-    public interface IFileHelper
+    public interface IFileService
     {
         IFormFile GetFormFile(string uniqueFileName);
         string GetMimeTypeForFileExtension(string filePath);

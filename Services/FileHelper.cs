@@ -4,17 +4,17 @@ using ProductManagement.Data;
 using ProductManagement.Models;
 using System.Drawing;
 
-namespace ProductManagement.Helpers
+namespace ProductManagement.Services
 {
-    public class FileHelper : IFileHelper
+    public class FileService : IFileService
     {
         private readonly ProductDbContext _context;
         private readonly IWebHostEnvironment _environment;
 
-        public FileHelper(ProductDbContext context,IWebHostEnvironment environment)
+        public FileService(ProductDbContext context, IWebHostEnvironment environment)
         {
-            this._context = context;
-            this._environment = environment;
+            _context = context;
+            _environment = environment;
         }
 
         public string ProcessUploadedFile(IFormFile productImageFile)
@@ -47,7 +47,7 @@ namespace ProductManagement.Helpers
             string imagePath = Path.Combine(_environment.WebRootPath, "uploads", uniqueFileName);
             var mimeType = GetMimeTypeForFileExtension(imagePath);
             // Open the image file into a stream
-            using var stream = System.IO.File.OpenRead(imagePath);
+            using var stream = File.OpenRead(imagePath);
 
             // Create a new FormFile instance from the stream
             var formFile = new FormFile(stream, 0, stream.Length, null, Path.GetFileName(imagePath))

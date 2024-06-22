@@ -5,38 +5,42 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
+using ProductManagement.Contracts;
 using ProductManagement.Data;
 using ProductManagement.Models;
+using ProductManagement.Services;
 
 namespace ProductManagement.Controllers
 {
     public class CategoriesController : Controller
     {
-        private readonly ProductDbContext _context;
+        private readonly ICategoryService _categoryService;        
 
-        public CategoriesController(ProductDbContext context)
+        public CategoriesController(ICategoryService categoryService)
         {
-            _context = context;
+            _categoryService = categoryService;
         }
 
         // GET: Categories
         public async Task<IActionResult> Index()
         {
-              return _context.Categories != null ? 
-                          View(await _context.Categories.ToListAsync()) :
+            var categories = await _categoryService.GetAllCategories();
+              return categories != null ? 
+                          View(categories) :
                           Problem("Entity set 'ProductDbContext.Categories'  is null.");
         }
 
         // GET: Categories/Details/5
         public async Task<IActionResult> Details(int? id)
         {
-            if (id == null || _context.Categories == null)
+            var categories = await _categoryService.GetCategories();
+
+            if (id == null || categories == null)
             {
                 return NotFound();
             }
 
-            var category = await _context.Categories
-                .FirstOrDefaultAsync(m => m.CategoryId == id);
+            var category = await _categoryService.GetCategoryById(id);
             if (category == null)
             {
                 return NotFound();
@@ -62,8 +66,7 @@ namespace ProductManagement.Controllers
 
             if (ModelState.IsValid)
             {
-                _context.Add(category);
-                await _context.SaveChangesAsync();
+                await _categoryService.CreateCategory(category);
                 return RedirectToAction(nameof(Index));
             }
             return View(category);
@@ -72,12 +75,13 @@ namespace ProductManagement.Controllers
         // GET: Categories/Edit/5
         public async Task<IActionResult> Edit(int? id)
         {
-            if (id == null || _context.Categories == null)
+            var categories = await _categoryService.GetCategories();
+            if (id == null || categories == null)
             {
                 return NotFound();
             }
 
-            var category = await _context.Categories.FindAsync(id);
+            var category = await _categoryService.GetCategoryById(id);
             if (category == null)
             {
                 return NotFound();
@@ -103,12 +107,11 @@ namespace ProductManagement.Controllers
             {
                 try
                 {
-                    _context.Update(category);
-                    await _context.SaveChangesAsync();
+                   await _categoryService.UpdateCategory(category);   
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!CategoryExists(category.CategoryId))
+                    if (!_categoryService.CategoryExists(category.CategoryId))
                     {
                         return NotFound();
                     }
@@ -125,13 +128,13 @@ namespace ProductManagement.Controllers
         // GET: Categories/Delete/5
         public async Task<IActionResult> Delete(int? id)
         {
-            if (id == null || _context.Categories == null)
+            var categories = await _categoryService.GetCategories();
+            if (id == null || categories == null)
             {
                 return NotFound();
             }
 
-            var category = await _context.Categories
-                .FirstOrDefaultAsync(m => m.CategoryId == id);
+            var category = await _categoryService.GetCategoryById(id);    
             if (category == null)
             {
                 return NotFound();
@@ -145,23 +148,17 @@ namespace ProductManagement.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            if (_context.Categories == null)
+            var categories = await _categoryService.GetCategories();
+            if (categories == null)
             {
                 return Problem("Entity set 'ProductDbContext.Categories'  is null.");
             }
-            var category = await _context.Categories.FindAsync(id);
-            if (category != null)
-            {
-                _context.Categories.Remove(category);
-            }
+            var category = await _categoryService.GetCategoryById(id);
             
-            await _context.SaveChangesAsync();
+            await _categoryService.DeleteCategory(category);
             return RedirectToAction(nameof(Index));
         }
 
-        private bool CategoryExists(int id)
-        {
-          return (_context.Categories?.Any(e => e.CategoryId == id)).GetValueOrDefault();
-        }
+
     }
 }

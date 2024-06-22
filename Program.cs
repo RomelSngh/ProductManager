@@ -2,7 +2,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using ProductManagement.Contracts;
 using ProductManagement.Data;
-using ProductManagement.Helpers;
+using ProductManagement.Services;
 
 namespace ProductManagement
 {
@@ -23,7 +23,9 @@ namespace ProductManagement
                 .AddEntityFrameworkStores<ProductDbContext>();
             builder.Services.AddControllersWithViews();
             //builder.Services.AddScoped<ILocationApiService, LocationApiService>();
-            builder.Services.AddScoped<IFileHelper, FileHelper>();
+            builder.Services.AddScoped<IFileService, FileService>();
+            builder.Services.AddScoped<IProductService, ProductService>();
+            builder.Services.AddScoped<ICategoryService, CategoryService>();
             var app = builder.Build();
 
             // Configure the HTTP request pipeline.

@@ -9,42 +9,44 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Hosting;
 using ProductManagement.Contracts;
 using ProductManagement.Data;
-using ProductManagement.Helpers;
+using ProductManagement.Services;
 using ProductManagement.Models;
 
 namespace ProductManagement.Controllers
 {
     public class ProductsController : Controller
     {
-        private readonly ProductDbContext _context;
-        private readonly IFileHelper _fileHelper;
+        private readonly IProductService _productService;
+        private readonly ICategoryService _categoryService;
+        private readonly IFileService _fileService;
         private readonly IMapper _mapper;
 
-        public ProductsController(ProductDbContext context,IFileHelper fileHelper,IMapper mapper)
+        public ProductsController(IProductService productService,ICategoryService categoryService, IFileService fileService, IMapper mapper)
         {
-            _context = context;
-            _fileHelper = fileHelper; 
+            _categoryService = categoryService;
+            _productService = productService;
+            _fileService = fileService; 
             _mapper = mapper;
         }
 
         // GET: Products
         public async Task<IActionResult> Index()
         {
-            var productDbContext = _context.Products.Include(p => p.ProductCategory);
-            return View(await productDbContext.ToListAsync());
+            var products = await _productService.GetProducts();
+            return View(products);
         }
 
         // GET: Products/Details/5
         public async Task<IActionResult> Details(int? id)
         {
-            if (id == null || _context.Products == null)
+
+            if (id == null || await _productService.GetProducts() == null)
             {
                 return NotFound();
             }
 
-            var product = await _context.Products
-                .Include(p => p.ProductCategory)
-                .FirstOrDefaultAsync(m => m.ProductId == id);
+            var product = await _productService.GetProductById(id);
+          
             if (product == null)
             {
                 return NotFound();
@@ -56,7 +58,8 @@ namespace ProductManagement.Controllers
         // GET: Products/Create
         public IActionResult Create()
         {
-            ViewData["CategoryId"] = new SelectList(_context.Categories, "CategoryId", "CategoryId");
+            var categories =  _categoryService.GetCategories().GetAwaiter().GetResult();
+            ViewData["CategoryId"] = new SelectList(categories, "CategoryId", "CategoryId");
             return View();
         }
 
@@ -67,41 +70,40 @@ namespace ProductManagement.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("ProductId,ProductCode,Name,Description,CategoryName,CategoryId,Price")] CreateProductViewModel productVm, IFormFile productFile)
         {
-
             var product = _mapper.Map<Product>(productVm); 
-
             if (ModelState.IsValid)
             {
                 if (productFile != null && productFile.Length > 0)
                 {
-                    product.Image = _fileHelper.ProcessUploadedFile(productFile);// Process file save and get back return path
+                    product.Image = _fileService.ProcessUploadedFile(productFile);// Process file save and get back return path
                 }
 
-                _context.Add(product);
-                await _context.SaveChangesAsync();
+                await _productService.CreateProduct(product);
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["CategoryId"] = new SelectList(_context.Categories, "CategoryId", "CategoryId", product.CategoryId);
+
+            var categories = await _categoryService.GetCategories();
+            ViewData["CategoryId"] = new SelectList(categories, "CategoryId", "CategoryId", product.CategoryId);
             return View(productVm);
         }
 
         // GET: Products/Edit/5
         public async Task<IActionResult> Edit(int? id)
         {
-            if (id == null || _context.Products == null)
+            if (id == null ||await _productService.GetProducts() == null)
             {
                 return NotFound();
             }
 
-            var product = await _context.Products.FindAsync(id);
+            var product = await _productService.GetProductById(id);
             if (product == null)
             {
                 return NotFound();
             }
-
-            ViewData["CategoryId"] = new SelectList(_context.Categories, "CategoryId", "CategoryId", product.CategoryId);
+            var categories = await _categoryService.GetCategories();
+            ViewData["CategoryId"] = new SelectList(categories, "CategoryId", "CategoryId", product.CategoryId);
             var productVm = _mapper.Map<EditProductViewModel>(product);
-            productVm.Image = _fileHelper.GetFormFile(productVm.ImageName);
+            productVm.Image = _fileService.GetFormFile(productVm.ImageName);
             return View(productVm);
         }
 
@@ -133,20 +135,14 @@ namespace ProductManagement.Controllers
                     //new image scenario
                     if (productVm.Image != null && productVm.Image.Length > 0)
                     {
-                        product.Image = _fileHelper.ProcessUploadedFile(productVm.Image);// Process file save and get back return path
+                        product.Image = _fileService.ProcessUploadedFile(productVm.Image);// Process file save and get back return path
                     }
-                    //else
-                    //{
-                    //    productVm.Image = _fileHelper.GetFormFile(productVm.ImageName);// File Already exists
-                    //    product.
-                    //}
 
-                    _context.Update(product);
-                    await _context.SaveChangesAsync();
+                    await _productService.UpdateProduct(product);
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!ProductExists(product.ProductId))
+                    if (!_productService.ProductExists(product.ProductId))
                     {
                         return NotFound();
                     }
@@ -157,21 +153,20 @@ namespace ProductManagement.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["CategoryId"] = new SelectList(_context.Categories, "CategoryId", "CategoryId", product.CategoryId);
+            var categories = await _categoryService.GetCategories();
+            ViewData["CategoryId"] = new SelectList(categories, "CategoryId", "CategoryId", product.CategoryId);
             return View(productVm);
         }
 
         // GET: Products/Delete/5
         public async Task<IActionResult> Delete(int? id)
         {
-            if (id == null || _context.Products == null)
+            if (id == null || await _productService.GetProducts()== null)
             {
                 return NotFound();
             }
 
-            var product = await _context.Products
-                .Include(p => p.ProductCategory)
-                .FirstOrDefaultAsync(m => m.ProductId == id);
+            var product =await _productService.GetProductById(id);
             if (product == null)
             {
                 return NotFound();
@@ -185,23 +180,16 @@ namespace ProductManagement.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            if (_context.Products == null)
+            if (await _productService.GetProducts() == null)
             {
                 return Problem("Entity set 'ProductDbContext.Products'  is null.");
             }
-            var product = await _context.Products.FindAsync(id);
-            if (product != null)
-            {
-                _context.Products.Remove(product);
+            var product = await _productService.GetProductById(id);
+            if (product != null) { 
+                await _productService.DeleteProduct(product);
             }
-            
-            await _context.SaveChangesAsync();
-            return RedirectToAction(nameof(Index));
-        }
 
-        private bool ProductExists(int id)
-        {
-          return (_context.Products?.Any(e => e.ProductId == id)).GetValueOrDefault();
+            return RedirectToAction(nameof(Index));
         }
 
        
