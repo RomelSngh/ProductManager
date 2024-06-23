@@ -20,13 +20,13 @@ namespace ProductManagement.Data.Migrations
 
         protected override void Down(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.AlterColumn<byte[]>(
-                name: "Image",
-                table: "Products",
-                type: "varbinary(max)",
-                nullable: false,
-                oldClrType: typeof(string),
-                oldType: "nvarchar(max)");
+            //migrationBuilder.AlterColumn<byte[]>(
+            //    name: "Image",
+            //    table: "Products",
+            //    type: "varbinary(max)",
+            //    nullable: false,
+            //    oldClrType: typeof(string),
+            //    oldType: "nvarchar(max)");
         }
     }
 }

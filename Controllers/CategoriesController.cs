@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Claims;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
@@ -62,6 +63,11 @@ namespace ProductManagement.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("CategoryId,Name,CategoryCode,IsActive")] Category category)
         {
+            var currentUserId = User.FindFirst(ClaimTypes.NameIdentifier).Value;
+
+            category.CreatedBy = Guid.Parse(currentUserId);
+            category.CreatedDate = DateTime.Now;
+
             ModelState.Remove(nameof(category.Products));
 
             if (ModelState.IsValid)
@@ -96,6 +102,11 @@ namespace ProductManagement.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, [Bind("CategoryId,Name,CategoryCode,IsActive")] Category category)
         {
+            var currentUserId = User.FindFirst(ClaimTypes.NameIdentifier).Value;
+
+            category.ModifiedBy= Guid.Parse(currentUserId);
+            category.ModifiedDate = DateTime.Now;
+
             ModelState.Remove(nameof(category.Products));
 
             if (id != category.CategoryId)

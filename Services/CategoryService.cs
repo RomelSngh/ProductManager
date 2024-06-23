@@ -49,7 +49,16 @@ namespace ProductManagement.Services
 
         public async Task UpdateCategory(Category category)
         {
-            _context.Update(category);
+            _context.Categories.Attach(category);
+
+            // Mark all properties as modified
+            _context.Entry(category).State = EntityState.Modified;
+
+            // Exclude specified fields from being marked as modified
+            _context.Entry(category).Property("CreatedBy").IsModified = false;
+            _context.Entry(category).Property("CreatedDate").IsModified = false;
+
+            // Save changes to the database
             await _context.SaveChangesAsync();
         }
 

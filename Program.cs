@@ -1,8 +1,11 @@
-using Microsoft.AspNetCore.Identity;
+﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using ProductManagement.Contracts;
 using ProductManagement.Data;
 using ProductManagement.Services;
+using ProductManagement.Controllers;
+using Microsoft.OpenApi.Models;
+using System.Reflection;
 
 namespace ProductManagement
 {
@@ -26,7 +29,22 @@ namespace ProductManagement
             builder.Services.AddScoped<IFileService, FileService>();
             builder.Services.AddScoped<IProductService, ProductService>();
             builder.Services.AddScoped<ICategoryService, CategoryService>();
+
+                        builder.Services.AddEndpointsApiExplorer();
+
+                        builder.Services.AddSwaggerGen();
+
+
             var app = builder.Build();
+            app.UseSwagger();
+            app.UseSwaggerUI(c =>
+            {
+                c.SwaggerEndpoint("/swagger/v1/swagger.json", "My API V1");
+                c.RoutePrefix = "swagger"; // Serve Swagger UI at the app's root
+            });
+
+            
+            //app.UseSwaggerUI();
 
             // Configure the HTTP request pipeline.
             if (app.Environment.IsDevelopment())
@@ -52,6 +70,7 @@ namespace ProductManagement
                 name: "default",
                 pattern: "{controller=Home}/{action=Index}/{id?}");
             app.MapRazorPages();
+
 
             app.Run();
         }

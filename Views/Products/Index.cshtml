@@ -1,43 +1,80 @@
-﻿@model IEnumerable<ProductManagement.Models.Product>
+﻿@model ProductListViewModel
 
 @{
     ViewData["Title"] = "Index";
 }
 
-<h3 class="text-center text-uppercase">list of products</h3>
+<style>
+    .custom-border {
+        border: 0.5px solid black;
+    }
+</style>
 
-<p>
-    <a asp-action="Create" class="btn btn-primary rounded-0"><i class="fa fa-plus-circle"></i> Add New</a>
-</p>
+<h3 class="text-center text-uppercase">list of products</h3>
+@if (!ViewData.ModelState.IsValid)
+{
+    if (ViewData.ModelState[""] != null)
+    {
+        <div class="alert alert-danger">
+            @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+        </div>
+    }
+    else
+    {
+        <div class="alert alert-success" role="alert">
+            @Html.ValidationSummary("Excel Import Success")
+        </div>
+
+    }
+}
+<form asp-action="ExcelUpload" method="post" enctype="multipart/form-data">
+
+    <div class="row">
+        <div class="col d-flex float-right">
+            <label for="XlsFile" class="float-right">Select Excel File:</label>
+            <input type="file" class="float-right" id="XlsFile" name="XlsFile" accept=".xlsx,.xls" />
+        </div>
+    </div>
+    <div class="row">
+        <div class="col d-flex justify-content-start">
+            <button type="submit" class="btn btn-primary rounded float-left custom-border">Upload Products</button>
+            <a asp-action="exportexcel" class="btn btn-primary rounded float-left custom-border"><i class="fa "></i> Download</a>
+        </div>
+        <div class="col d-flex justify-content-end">
+            <a asp-action="Create" class="btn btn-primary rounded float-right custom-border"><i class="fa fa-plus-circle"></i> Add New</a>
+        </div>
+    </div>
+</form>
+
 <table class="table table-bordered">
     <thead class="thead-dark bg-info">
         <tr>
             <th>
-                @Html.DisplayNameFor(model => model.ProductCode)
+                @Html.DisplayName("ProductCode")
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.Name)
+                @Html.DisplayName("Name")
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.Description)
+                @Html.DisplayName("Description")
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.CategoryName)
+                @Html.DisplayName("CategoryName")
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.ProductCategory)
+                @Html.DisplayName("ProductCategory")
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.Price)
+                @Html.DisplayName("Price")
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.Image)
+                @Html.DisplayName("Image")
             </th>
             <th></th>
         </tr>
     </thead>
     <tbody>
-@foreach (var item in Model) {
+@foreach (var item in Model.Products) {
         <tr>
             <td>
                 @Html.DisplayFor(modelItem => item.ProductCode)
@@ -57,19 +94,19 @@
             <td>
                 @Html.DisplayFor(modelItem => item.Price)
             </td>
-            <td>
+@*             <td>
                 @Html.DisplayFor(modelItem => item.Image)
-            </td>
+            </td> *@
+                <td>
+                    <a asp-action="Details" asp-route-id="@item.ProductId">
+                        <img src="@FileLocation.RetriveFileFromFolder@item.Image" class="img-thumbnail" height="100" width="100" asp-append-version="true" />
+                    </a>
+                </td>
                 <td>
                     <a asp-action="Edit" asp-route-id="@item.ProductId" class="btn btn-sm btn-info rounded-0"><i class="fa fa-pencil-alt"></i></a>
                     <a asp-action="Details" asp-route-id="@item.ProductId" class="btn btn-sm btn-primary rounded-0"><i class="fa fa-eye"></i></a>
                     <a asp-action="Delete" asp-route-id="@item.ProductId" class="btn btn-sm btn-danger rounded-0"><i class="fa fa-trash-alt"></i></a>
                 </td>
-@*             <td>
-                <a asp-action="Edit" asp-route-id="@item.ProductId">Edit</a> |
-                <a asp-action="Details" asp-route-id="@item.ProductId">Details</a> |
-                <a asp-action="Delete" asp-route-id="@item.ProductId">Delete</a>
-            </td> *@
         </tr>
 }
     </tbody>

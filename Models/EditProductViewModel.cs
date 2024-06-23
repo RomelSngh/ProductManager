@@ -1,9 +1,12 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using ProductManagement.Helpers;
+using System.ComponentModel.DataAnnotations;
 
 namespace ProductManagement.Models
 {
     public class EditProductViewModel
     {
+        private const string V = ".xlsx";
+
         public int ProductId { get; set; }
         public string ProductCode { get; set; } = string.Empty;
         public string Name { get; set; } = string.Empty;
@@ -15,6 +18,7 @@ namespace ProductManagement.Models
 
         [Required]
         [Display(Name = "Image")]
+        [AllowedExtensions(new string[] { ".jpg",".jpeg",".tiff", ".png" , ".gif" , ".bmp" })]
         public IFormFile? Image { get; set; }
     }
 }

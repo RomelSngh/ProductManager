@@ -9,7 +9,7 @@ namespace ProductManagement.Services
     public class ProductService : IProductService
     {
         private readonly ProductDbContext _context;
-        
+
         public ProductService(ProductDbContext context)
         {
             _context = context;
@@ -32,7 +32,16 @@ namespace ProductManagement.Services
 
         public async Task UpdateProduct(Product product)
         {
-            _context.Update(product);
+            _context.Products.Attach(product);
+
+            // Mark all properties as modified
+            _context.Entry(product).State = EntityState.Modified;
+
+            // Exclude specified fields from being marked as modified
+            _context.Entry(product).Property("CreatedBy").IsModified = false;
+            _context.Entry(product).Property("CreatedDate").IsModified = false;
+
+            // Save changes to the database
             await _context.SaveChangesAsync();
         }
 
@@ -47,14 +56,15 @@ namespace ProductManagement.Services
 
         public async Task<List<Product>> GetProducts()
         {
-           return await _context.Products.Include(p => p.ProductCategory).ToListAsync();
+            return await _context.Products.Include(p => p.ProductCategory).ToListAsync();
         }
 
         public async Task CreateProduct(Product product)
         {
+            product.ProductCode = _context.GetNextSequenceValue();
             var p = await _context.Products.AddAsync(product);
+            await _context.SaveChangesAsync();
+        } 
 
-            await _context.SaveChangesAsync(); 
-        }
-    }
+    } 
 }
