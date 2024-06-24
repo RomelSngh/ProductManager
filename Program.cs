@@ -25,7 +25,8 @@ namespace ProductManagement
             builder.Services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = true)
                 .AddEntityFrameworkStores<ProductDbContext>();
             builder.Services.AddControllersWithViews();
-            //builder.Services.AddScoped<ILocationApiService, LocationApiService>();
+           
+
             builder.Services.AddScoped<IFileService, FileService>();
             builder.Services.AddScoped<IProductService, ProductService>();
             builder.Services.AddScoped<ICategoryService, CategoryService>();

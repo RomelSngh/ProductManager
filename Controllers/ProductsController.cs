@@ -156,7 +156,7 @@ namespace ProductManagement.Controllers
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!_productService.ProductExists(product.ProductId))
+                    if (!await _productService.ProductExists(product.ProductId))
                     {
                         return NotFound();
                     }

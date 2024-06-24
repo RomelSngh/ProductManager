@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Newtonsoft.Json;
 using ProductManagement.Contracts;
 using ProductManagement.Data;
 using ProductManagement.Models;
@@ -8,62 +9,77 @@ namespace ProductManagement.Services
 {
     public class ProductService : IProductService
     {
-        private readonly ProductDbContext _context;
+        Uri baseAddress = new Uri("https://localhost:7116/api");
+        public readonly HttpClient _http;
 
-        public ProductService(ProductDbContext context)
+        public ProductService()
         {
-            _context = context;
+            _http = new HttpClient();
+            _http.BaseAddress = baseAddress;
         }
 
         public async Task DeleteProduct(Product product)
         {
-            if (product != null)
-            {
-                _context.Products.Remove(product);
-            }
-
-            await _context.SaveChangesAsync();
+            HttpResponseMessage response = await _http.DeleteAsync(baseAddress + $"/ProductsApi/{product.ProductId}");
         }
 
-        public bool ProductExists(int productId)
+        public async Task<bool> ProductExists(int productId)
         {
-            return (_context.Products?.Any(e => e.ProductId == productId)).GetValueOrDefault();
+            var product = new Product();
+            HttpResponseMessage response =await  _http.GetAsync(baseAddress + "/ProductsApi/" + productId.ToString());
+
+            if (!response.IsSuccessStatusCode)
+            {
+                return false;
+            }
+
+            string data = response.Content.ReadAsStringAsync().Result;
+            product = JsonConvert.DeserializeObject<Product>(data);
+            return (product == null) ? false : true;
         }
 
         public async Task UpdateProduct(Product product)
         {
-            _context.Products.Attach(product);
-
-            // Mark all properties as modified
-            _context.Entry(product).State = EntityState.Modified;
-
-            // Exclude specified fields from being marked as modified
-            _context.Entry(product).Property("CreatedBy").IsModified = false;
-            _context.Entry(product).Property("CreatedDate").IsModified = false;
-
-            // Save changes to the database
-            await _context.SaveChangesAsync();
+            string data = JsonConvert.SerializeObject(product);
+            StringContent content = new StringContent(data, System.Text.Encoding.UTF8, "application/json");
+            HttpResponseMessage response = await _http.PutAsync(baseAddress + $"/ProductsApi/{product.ProductId}", content);
         }
 
         public async Task<Product> GetProductById(int? productId)
         {
-            var product = await _context.Products
-               .Include(p => p.ProductCategory)
-               .FirstOrDefaultAsync(m => m.ProductId == productId);
+            var product = new Product();
+            HttpResponseMessage response = _http.GetAsync(baseAddress + "/ProductsApi/" + productId.ToString()).Result;
 
+            if (!response.IsSuccessStatusCode)
+            {
+                return product;
+            }
+
+            string data = response.Content.ReadAsStringAsync().Result;
+            product = JsonConvert.DeserializeObject<Product>(data);
             return product;
         }
 
         public async Task<List<Product>> GetProducts()
         {
-            return await _context.Products.Include(p => p.ProductCategory).ToListAsync();
+            List<Product> products = new List<Product>();
+            HttpResponseMessage response =await _http.GetAsync(baseAddress + "/ProductsApi");
+
+            if (!response.IsSuccessStatusCode)
+            {
+                return new List<Product>();
+            }
+
+            string data = response.Content.ReadAsStringAsync().Result;
+            products = JsonConvert.DeserializeObject<List<Product>>(data);
+            return products;
         }
 
         public async Task CreateProduct(Product product)
         {
-            product.ProductCode = _context.GetNextSequenceValue();
-            var p = await _context.Products.AddAsync(product);
-            await _context.SaveChangesAsync();
+            string data = JsonConvert.SerializeObject(product);
+            StringContent content = new StringContent(data, System.Text.Encoding.UTF8, "application/json");
+            HttpResponseMessage response = await _http.PostAsync(baseAddress + "/ProductsApi", content);
         } 
 
     } 

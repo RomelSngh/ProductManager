@@ -56,12 +56,12 @@ namespace ProductManagement.Services
 
         private bool IsValidWorkSheet(ExcelWorksheet worksheet)
         {
-            return (worksheet.Cells[1, 1].Value == "Name") &&
-                (worksheet.Cells[1, 2].Value == "Description") &&
-                (worksheet.Cells[1, 3].Value == "CategoryName") &&
-                (worksheet.Cells[1, 4].Value == "CategoryId") &&
-                (worksheet.Cells[1, 5].Value == "Price") &&
-                (worksheet.Cells[1, 6].Value == "Image") &&
+            return (worksheet.Cells[1, 1].Value.ToString() == "Name") &&
+                (worksheet.Cells[1, 2].Value.ToString() == "Description") &&
+                (worksheet.Cells[1, 3].Value.ToString() == "CategoryName") &&
+                (worksheet.Cells[1, 4].Value.ToString() == "CategoryId") &&
+                (worksheet.Cells[1, 5].Value.ToString() == "Price") &&
+                (worksheet.Cells[1, 6].Value.ToString() == "Image") &&
                 (worksheet.Dimension.Rows > 2);
         }
 

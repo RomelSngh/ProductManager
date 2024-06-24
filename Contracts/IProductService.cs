@@ -11,6 +11,6 @@ namespace ProductManagement.Contracts
 
         Task<Product> GetProductById(int? productId);
         Task<List<Product>> GetProducts();
-        bool ProductExists(int productId);
+        Task<bool> ProductExists(int productId);
     }
 }
