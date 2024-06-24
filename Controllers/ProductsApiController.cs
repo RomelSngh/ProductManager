@@ -86,6 +86,7 @@ namespace ProductManagement.Controllers
         [HttpPost]
         public async Task<ActionResult<Product>> PostProduct(Product product)
         {
+            product.ProductCode = _context.GetNextSequenceValue();
           if (_context.Products == null)
           {
               return Problem("Entity set 'ProductDbContext.Products'  is null.");

@@ -65,10 +65,6 @@ namespace ProductManagement.Services
                 (worksheet.Dimension.Rows > 2);
         }
 
-        private bool IsValidExcelFile(string filename)
-        {
-            return filename.Contains(".xlsx");
-        }
 
         public string ProcessUploadedFile(IFormFile productImageFile)
         {
