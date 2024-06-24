@@ -1,0 +1,10 @@
+﻿-- Copy Contents of the solution folder onto a folder on your windows machine eg. c:\development\ProductionManagement
+-- Open solution in Visual Studio 2022 
+-- Build Web Project 
+-- Go into AppSettings file and set the appropriate database connectionstring
+-- Gointo Package manager console and run : DOTNET EF Database update
+-- Build Web Project and Run 
+-- Im using Microsoft.ASPNetCore.Identity so in order to setup a user simply register a user with an email and a password. 
+-- Use this email and password to login 
+-- Once logged in , there a two functional menu options i.e Products, Categories
+	
