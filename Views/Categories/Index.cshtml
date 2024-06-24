@@ -4,13 +4,13 @@
     ViewData["Title"] = "Index";
 }
 
-<h1>Index</h1>
+<h3 class="text-center text-uppercase">list of categories</h3>
 
 <p>
-    <a asp-action="Create">Create New</a>
+    <a asp-action="Create" class="btn btn-primary rounded"><i class="fa fa-plus-circle"></i> Add New</a>
 </p>
-<table class="table">
-    <thead>
+<table class="table table-bordered table-striped">
+    <thead class="thead-dark bg-info">
         <tr>
             <th>
                 @Html.DisplayNameFor(model => model.Name)
@@ -37,9 +37,8 @@
                 @Html.DisplayFor(modelItem => item.IsActive)
             </td>
             <td>
-                <a asp-action="Edit" asp-route-id="@item.CategoryId">Edit</a> |
-                <a asp-action="Details" asp-route-id="@item.CategoryId">Details</a> |
-                <a asp-action="Delete" asp-route-id="@item.CategoryId">Delete</a>
+                <a asp-action="Edit" asp-route-id="@item.CategoryId" class="btn btn-sm btn-info rounded-0"><i class="fa fa-pencil-alt"></i></a>
+                <a asp-action="Details" asp-route-id="@item.CategoryId"  class="btn btn-sm btn-primary rounded-0"><i class="fa fa-eye"></i></a>
             </td>
         </tr>
 }
