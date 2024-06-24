@@ -29,4 +29,8 @@
     <Folder Include="wwwroot\Uploads\" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Include="ProductManagementTests2.csproj" />
+  </ItemGroup>
+
 </Project>
